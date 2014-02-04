@@ -190,6 +190,10 @@ class Request(object):
     def _build_request_args(self, path, method, params):
         headers = {'Accept': 'application/json',
                    'User-Agent': self.user_agent}
+        # Always send auth (when present) to avoid challenge roundtrip.
+        if self.http.credentials.credentials:
+            headers['Authorization'] = 'Basic {}'.format(':'.join(self.http.credentials.credentials[0][1:3]).encode('base64').rstrip('\n'))
+
         body = None
 
         uri = "%s/%s" % (self.config.root_uri.rstrip("/"), path.lstrip("/"))
